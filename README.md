@@ -1,1 +1,1 @@
-# An example Kubernetes Stack
+# An example Kubernetes stack
