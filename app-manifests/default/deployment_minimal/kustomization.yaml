@@ -1,0 +1,30 @@
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../module
+
+commonAnnotations:
+    underpinnings.io/app: default-deployment-minimal
+
+namePrefix: deployment-minimal-
+namespace: default
+
+patches:
+- target:
+   kind: Service
+  patch: |-
+    - op: replace
+        path: /spec/selector/app
+        value: deployment-minimal-deployment
+- target:
+   kind: Deployment
+  patch: |-
+    - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 1Gi
+
+images:
+- name: underpin.docker.something
+  newTag: "latest"
