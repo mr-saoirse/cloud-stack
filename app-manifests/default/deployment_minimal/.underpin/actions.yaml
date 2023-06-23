@@ -1,0 +1,5 @@
+build:
+- image: underpin.docker.something
+  type: docker
+- path: /Users/sirsh/.underpin/cloned/cloud-stack/app-manifests/default/deployment_minimal/kustomization.yaml
+  type: kustomization
