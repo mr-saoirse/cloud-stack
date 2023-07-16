@@ -6,7 +6,7 @@ resources:
 - ../../module
 
 commonAnnotations:
-    underpinnings.io/app: default-deployment-minimal
+    underpin.io/app: default-deployment-minimal
 
 namePrefix: deployment-minimal-
 namespace: default
@@ -24,7 +24,7 @@ patches:
     - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
         value: 1Gi
-
+#comments
 images:
 - name: underpin.docker.something
   newTag: "latest"
