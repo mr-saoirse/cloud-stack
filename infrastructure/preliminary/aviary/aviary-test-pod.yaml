@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: aviary-test-pull-on-node
+spec:
+  containers:
+    - name: dummy-test-pull
+      image: anyscale/aviary:latest
+      command: ["/bin/bash", "-c", "--"]
+      args: ["while true; do sleep 60; done;"]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 256Mi
+
+  securityContext:
+    runAsUser: 0 # to allow read of ssh key

@@ -1,0 +1,25 @@
+#e.g.https://github.com/eksctl-io/eksctl/blob/main/examples/34-taints.yaml
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: res-ray-test
+  region: us-east-1
+  version: "latest"
+managedNodeGroups:
+  - name: nodegroup-custom-aviary-latest-test-gpu-tainted
+    #the thing i built with aviary docker image on it
+    ami: ami-03f3c1f1d16cf4c92
+    instanceType: g5.12xlarge
+    amiFamily: AmazonLinux2
+    desiredCapacity: 1
+    minSize: 0
+    maxSize: 1
+    overrideBootstrapCommand: |
+      #!/bin/bash
+      /etc/eks/bootstrap.sh res-ray-test --container-runtime containerd
+    taints:
+      - key: "ray.io/node-type"
+        value: "worker"
+        effect: "NoSchedule"
+#eksctl create nodegroup -f nodegroup-custom-aviary-ami.yaml
+#i create a test-ami EC2 instance to check the AMI. i can log into it at least
