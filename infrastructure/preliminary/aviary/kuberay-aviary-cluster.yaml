@@ -68,5 +68,3 @@ spec:
               operator: "Equal"
               value: "worker"
               effect: "NoSchedule"
-#docker pull aviary and move to ECR
-#docker tag anyscale/aviary:latest 286292902993.dkr.ecr.us-east-1.amazonaws.com/aviary:latest & docker push 286292902993.dkr.ecr.us-east-1.amazonaws.com/aviary:latest
