@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
     - name: monolith
-      image: 286292902993.dkr.ecr.us-east-1.amazonaws.com/res-data:test-kafka
+      image: IMAGE
       imagePullPolicy: Always
       command:
         ["python", "/app/cli.py", "kafka", "consume", "-t", "test.order_status"]
