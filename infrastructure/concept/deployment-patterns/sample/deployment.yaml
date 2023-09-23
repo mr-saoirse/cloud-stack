@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
     - name: monolith
-      image: YORU_IMAGE
+      image: YOUR_IMAGE
       imagePullPolicy: Always
       command:
         ["python", "/app/cli.py", "kafka", "consume", "-t", "test.order_status"]
