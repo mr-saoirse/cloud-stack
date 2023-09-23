@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: monolith
+spec:
+  containers:
+    - name: monolith
+      image: 286292902993.dkr.ecr.us-east-1.amazonaws.com/res-data:test-kafka
+      imagePullPolicy: Always
+      command:
+        ["python", "/app/cli.py", "kafka", "consume", "-t", "test.order_status"]
+      envFrom:
+        - configMapRef:
+            name: res-data-env
+  restartPolicy: OnFailure
