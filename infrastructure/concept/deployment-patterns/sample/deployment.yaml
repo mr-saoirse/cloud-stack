@@ -5,11 +5,12 @@ metadata:
 spec:
   containers:
     - name: monolith
-      image: IMAGE
+      image: YORU_IMAGE
       imagePullPolicy: Always
       command:
         ["python", "/app/cli.py", "kafka", "consume", "-t", "test.order_status"]
       envFrom:
+        #load env vars from a config map or similar
         - configMapRef:
             name: res-data-env
   restartPolicy: OnFailure
