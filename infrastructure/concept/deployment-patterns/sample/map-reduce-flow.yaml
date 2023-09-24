@@ -23,6 +23,8 @@ spec:
         value: ""
       - name: context
         value: "{}"
+      - name: image
+        value: ""
   templates:
     - name: dag
       inputs:
@@ -47,8 +49,6 @@ spec:
                 - name: op
                   value: "generator"
 
-        # - name: memory
-        #   value: "{{item.metadata.memory}}"
         - - name: map
             template: res-data
             when: "{{workflow.parameters.generator}} != false"
@@ -57,6 +57,8 @@ spec:
               parameters:
                 - name: event
                   value: "{{item}}"
+                - name: memory
+                  value: "{{item.metadata.memory}}"
 
         - - name: reduce
             #runs optionally
@@ -125,9 +127,7 @@ spec:
             "{{inputs.parameters.op}}",
           ]
 
-        #docker build --pull --rm -f "Dockerfile" -t res-data:test-kafka --platform linux/amd64 .
-        #docker tag res-data:test-kafka 286292902993.dkr.ecr.us-east-1.amazonaws.com/res-data:test-kafka & docker push 286292902993.dkr.ecr.us-east-1.amazonaws.com/res-data:test-kafka
-        image: 286292902993.dkr.ecr.us-east-1.amazonaws.com/res-data:test-kafka
+        image: "{{workflow.parameters.image}}"
         imagePullPolicy: Always
         envFrom:
           - configMapRef:
