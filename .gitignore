@@ -158,3 +158,4 @@ package-lock.json
 bin
 include
 .direnv
+bd.sh
