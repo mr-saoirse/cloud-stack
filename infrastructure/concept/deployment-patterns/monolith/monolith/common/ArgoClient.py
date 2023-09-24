@@ -23,7 +23,7 @@ import re
 from datetime import datetime
 
 LOCAL_WORKFLOW_PATH = os.environ.get("WORKFLOW_DIR", "/app/workflows")
-
+IMAGE = os.environ.get("MONOLITH_IMAGE")
 class ArgoClient:
     def __init__(self):
         configuration = argo_workflows.Configuration(host= os.environ.get('ARGO_SERVER', 
@@ -47,7 +47,7 @@ class ArgoClient:
         GENERATOR_FLAG_INDEX = 2
         OP_PARAM_INDEX = 4
         EVENT_PARAM_INDEX = 5
-        
+        IMAGE_PARAM_INDEX = 6
         MAP_STEP_INDEX = 2  
         DAG_TEMPLATE_INDEX= 0
         
@@ -68,8 +68,9 @@ class ArgoClient:
             manifest['spec']['arguments']['parameters'][GENERATOR_FLAG_INDEX]['value'] = True
         else:
             manifest['spec']['templates'][DAG_TEMPLATE_INDEX]['steps'].pop(MAP_STEP_INDEX)
+        manifest['spec']['arguments']['parameters'][IMAGE_PARAM_INDEX]['value'] = IMAGE
         ##################################################################################
-            
+        
         api_response = self._api_instance.create_workflow(
             namespace="argo",
             body=IoArgoprojWorkflowV1alpha1WorkflowCreateRequest(workflow=manifest, _check_type=False),
