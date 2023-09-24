@@ -56,7 +56,8 @@ class ArgoClient:
         
         ######################         MOD ARGS     ####################################
         #safety - event if None is passed we try the name. always k8-ify and try submit even if not unique
-        k8s_id =  re.sub(r'[^a-z0-9\-]+', '-',  f"{name}-{datetime.utcnow().isoformat().split('.')[0]}".lower())
+        ts = datetime.utcnow().isoformat().split('.')[0].replace('T','-')
+        k8s_id =  re.sub(r'[^a-z0-9\-]+', '-',  f"{name}-{ts}".lower())
         
         logger.debug(f"submitting {k8s_id}")
         manifest['metadata']['name'] = k8s_id

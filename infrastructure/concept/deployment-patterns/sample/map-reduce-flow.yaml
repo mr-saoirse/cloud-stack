@@ -4,8 +4,8 @@ metadata:
   name: runner
 spec:
   ttlStrategy:
-    secondsAfterCompletion: 60
-    secondsAfterSuccess: 60
+    secondsAfterCompletion: 160
+    secondsAfterSuccess: 160
     secondsAfterFailure: 720
   entrypoint: dag
   onExit: exit-handler
@@ -14,13 +14,13 @@ spec:
       - name: event
         value: "{}"
       - name: op
-        value: False
+        value: handler
       - name: generator
         value: False
       - name: reducer
         value: False
       - name: name
-        value: False
+        value: ""
       - name: context
         value: "{}"
   templates:
@@ -47,6 +47,8 @@ spec:
                 - name: op
                   value: "generator"
 
+        # - name: memory
+        #   value: "{{item.metadata.memory}}"
         - - name: map
             template: res-data
             when: "{{workflow.parameters.generator}} != false"
@@ -55,8 +57,6 @@ spec:
               parameters:
                 - name: event
                   value: "{{item}}"
-                - name: memory
-                  value: "{{item.metadata.memory}}"
 
         - - name: reduce
             #runs optionally
@@ -95,10 +95,9 @@ spec:
       outputs:
         parameters:
           - name: out
-            default: "[{}]"
+            default: "[{},{}]"
             valueFrom:
               path: /tmp/out
-
       inputs:
         parameters:
           - name: event
@@ -126,7 +125,9 @@ spec:
             "{{inputs.parameters.op}}",
           ]
 
-        image: YOUR_IMAGE
+        #docker build --pull --rm -f "Dockerfile" -t res-data:test-kafka --platform linux/amd64 .
+        #docker tag res-data:test-kafka 286292902993.dkr.ecr.us-east-1.amazonaws.com/res-data:test-kafka & docker push 286292902993.dkr.ecr.us-east-1.amazonaws.com/res-data:test-kafka
+        image: 286292902993.dkr.ecr.us-east-1.amazonaws.com/res-data:test-kafka
         imagePullPolicy: Always
         envFrom:
           - configMapRef:
