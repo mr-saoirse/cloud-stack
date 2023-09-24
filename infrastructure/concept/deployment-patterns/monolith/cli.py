@@ -4,6 +4,7 @@ from loguru import logger
 from typing import Optional
 from monolith.common.KafkaClient import PydanticKafkaClient
 from monolith.modules.core.scheduler import start_scheduler
+from monolith.modules.core.ops import load_op
 
 app = typer.Typer()
 
@@ -15,27 +16,33 @@ app.add_typer(scheduler_app, name="scheduler")
 
 @app.command("run")
 def run_method(
-    topic:str = typer.Option(None, "--topic", "-t"),
+    name:str = typer.Option(None, "--name", "-n"),
     method: Optional[str] = typer.Option(None, "--method", "-m"),
-    value: Optional[str] = typer.Option(None, "--value", "-v")
+    value: Optional[str] = typer.Option(None, "--value", "-v"),
+    is_test: Optional[bool] = typer.Option(False, "--test", "-t")
 ):
-    logger.info(f"Invoke -> {topic=} {method=} {value=}")
+    logger.info(f"Invoke -> {name=} {method=} {value=}")
     
     """
     Run the specific module - unit test we can always load them and we get correct request
     Also output something for the workflow output parameters below
+    
+    to test the workflows and not worry about real handlers you can pass -t in the workflow
     """
     
-    
-    #if we start doing real work on the handlers we can remove this
     with open('/tmp/out', 'w') as f:
-        #illustrates the contract in the workflow DAG
-        dummy_message =  {'message':'dummy', "metadata": {'memory': '1Gi'}}
-        data = [dummy_message, dummy_message] if method == "generator" else dummy_message
-        logger.debug(f"Dumping {data}")
+        if is_test:
+            dummy_message =  {'message':'dummy', "memory": "1Gi"}
+            data = [dummy_message, dummy_message] if method == "generator" else dummy_message
+            logger.debug(f"Dumping {data}")
+        else:
+            fn = load_op(name, method)
+            data = fn(value)
+        
         json.dump(data,f) 
         
-    return data
+        return data or []
+        
     
 @kafka_app.command("consume")
 def consume_topic(

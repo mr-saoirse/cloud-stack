@@ -31,9 +31,7 @@ def invoke_task(name:str, event: Optional[EVENT_TYPE]=None, options: Optional[di
     """
     for the generator use case we will only implement calling by name as we will consume event data from kafka
     """
-    
-    #simulate request post to end point - determine id on server
-       
+
     logger.debug(f"We will invoke a remote uri to run the job {name}")
     
     return _argo_submit(name, event=event,context=options)
