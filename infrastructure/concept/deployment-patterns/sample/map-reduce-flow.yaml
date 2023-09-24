@@ -125,6 +125,7 @@ spec:
             "-m",
             "{{inputs.parameters.op}}",
           ]
+
         image: YOUR_IMAGE
         imagePullPolicy: Always
         envFrom:

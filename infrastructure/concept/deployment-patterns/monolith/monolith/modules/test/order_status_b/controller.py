@@ -4,7 +4,7 @@ from monolith.modules.core.ops import deployment_attributes
 from monolith.common.KafkaClient import kafka_batch_consumer
 from typing import Optional, List
 
-@deployment_attributes(interval_minutes='*/5', memory='2Gi', namespace="test.order_status")
+@deployment_attributes(memory='2Gi', namespace="test.order_status")
 def handler(message: OrderStatus, context=None):
     logger.info(f"handling message {message}")
    
