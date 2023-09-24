@@ -15,6 +15,7 @@ warnings.filterwarnings("ignore" )
 
 class ScheduledTask(BaseModel):
     name: str
+    namespace: str
     runner: Callable
     hour: Union[Any,None] = None
     minute: Union[Any,None] = None
@@ -29,6 +30,7 @@ def _get_scheduled_jobs() -> Iterator[ScheduledTask]:
     for op in inspect_modules():
         if op.interval_minutes or op.interval_days or op.interval_hours:
             yield ScheduledTask(name=op.name,
+                                namespace=op.namespace,
                                 #we just partially eval this just so the scheduler has something it can easily run
                                 #this will call an api e.g. rest with the right params
                                 runner=partial(invoke_task, name=op.name ),

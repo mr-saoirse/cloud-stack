@@ -25,12 +25,17 @@ def run_method(
     Run the specific module - unit test we can always load them and we get correct request
     Also output something for the workflow output parameters below
     """
+    
+    
     #if we start doing real work on the handlers we can remove this
     with open('/tmp/out', 'w') as f:
         #illustrates the contract in the workflow DAG
         dummy_message =  {'message':'dummy', "metadata": {'memory': '1Gi'}}
-        json.dumps([dummy_message] if method == "generator" else dummy_message) 
-    return {}
+        data = [dummy_message, dummy_message] if method == "generator" else dummy_message
+        logger.debug(f"Dumping {data}")
+        json.dump(data,f) 
+        
+    return data
     
 @kafka_app.command("consume")
 def consume_topic(
