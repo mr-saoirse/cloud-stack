@@ -58,7 +58,7 @@ spec:
                 - name: event
                   value: "{{item}}"
                 - name: memory
-                  value: "{{item.metadata.memory}}"
+                  value: "{{item.memory}}"
 
         - - name: reduce
             #runs optionally
@@ -114,17 +114,18 @@ spec:
             limits:
               memory: "{{inputs.parameters.memory}}"
       container:
-        command:
-          [
+        command: [
             python,
             "/app/cli.py",
             "run",
-            "-t",
+            "-n",
             "{{workflow.parameters.name}}",
             "-v",
             "{{inputs.parameters.event}}",
             "-m",
             "{{inputs.parameters.op}}",
+            #for testing pass this to get some dummy payloads
+            #"-t",
           ]
 
         image: "{{workflow.parameters.image}}"

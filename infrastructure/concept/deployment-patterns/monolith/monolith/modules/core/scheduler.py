@@ -33,7 +33,7 @@ def _get_scheduled_jobs() -> Iterator[ScheduledTask]:
                                 namespace=op.namespace,
                                 #we just partially eval this just so the scheduler has something it can easily run
                                 #this will call an api e.g. rest with the right params
-                                runner=partial(invoke_task, name=op.name ),
+                                runner=partial(invoke_task, name=op.namespace ),
                                 #we specify how often we want to kick of this task
                                 minute=op.interval_minutes)
 

@@ -8,7 +8,7 @@ import pkgutil
 import sys
 import importlib
 from loguru import logger
-
+from monolith import modules as MODULE
 class CallableModule(BaseModel):
     name: str
     namespace: Optional[str]
@@ -53,7 +53,11 @@ def deployment(obj=None):
 
     return wrapper(obj)
 
+
+ 
+
 def _get_module_callables(name):
+    
     MODULE_ROOT = 'monolith.modules.'
     fname = name.replace(MODULE_ROOT,'')
     namespace = f".".join(fname.split('.')[:2])        
@@ -68,6 +72,20 @@ def _get_module_callables(name):
             if hasattr(op,'meta'):
                 d.update(op.meta)
             yield CallableModule(**d)
+            
+def load_op(module, op='handler'):
+    """
+    much of this library depends on simple conventions so can be improved
+    in this case we MUST be able to find the modules 
+     'monolith.modules.<NAMESPACE>.<op>'
+    these ops currently live in the controller so a test is that they are exposed to the module surface
+    or we do more interesting inspection of modules 
+    """
+    MODULE_ROOT = 'monolith.modules.'
+    module = module.replace(MODULE_ROOT,'')
+    module = f"{MODULE_ROOT}{module}"
+    logger.debug(f"Loading function {op} from {module}")
+    return getattr(__import__(module, fromlist=[op]), op)
                 
 def inspect_modules(filter=None)-> Iterator[CallableModule]:
     """
@@ -75,11 +93,9 @@ def inspect_modules(filter=None)-> Iterator[CallableModule]:
     """
     path_list = []
     spec_list = []
-    
-    from monolith import modules as module
-    
-    for importer, modname, ispkg in pkgutil.walk_packages(module.__path__):
-        import_path = f"{module.__name__}.{modname}"
+ 
+    for importer, modname, ispkg in pkgutil.walk_packages(MODULE.__path__):
+        import_path = f"{MODULE.__name__}.{modname}"
         if ispkg:
             spec = pkgutil._get_spec(importer, modname)
             importlib._bootstrap._load(spec)
