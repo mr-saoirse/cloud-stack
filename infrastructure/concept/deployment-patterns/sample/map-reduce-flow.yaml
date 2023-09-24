@@ -1,0 +1,132 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: runner
+spec:
+  ttlStrategy:
+    secondsAfterCompletion: 60
+    secondsAfterSuccess: 60
+    secondsAfterFailure: 720
+  entrypoint: dag
+  onExit: exit-handler
+  arguments:
+    parameters:
+      - name: event
+        value: "{}"
+      - name: op
+        value: False
+      - name: generator
+        value: False
+      - name: reducer
+        value: False
+      - name: name
+        value: False
+      - name: context
+        value: "{}"
+  templates:
+    - name: dag
+      inputs:
+        parameters:
+          - name: event
+      steps:
+        - - name: simple
+            template: res-data
+            when: "{{workflow.parameters.generator}} == false"
+            arguments:
+              parameters:
+                - name: event
+                  value: "{{workflow.parameters.event}}"
+
+        - - name: generate
+            template: res-data
+            when: "{{workflow.parameters.generator}} != false"
+            arguments:
+              parameters:
+                - name: event
+                  value: "{{workflow.parameters.event}}"
+                - name: op
+                  value: "generator"
+
+        - - name: map
+            template: res-data
+            when: "{{workflow.parameters.generator}} != false"
+            withParam: "{{steps.generate.outputs.parameters.out}}"
+            arguments:
+              parameters:
+                - name: event
+                  value: "{{item}}"
+                - name: memory
+                  value: "{{item.metadata.memory}}"
+
+        - - name: reduce
+            #runs optionally
+            template: res-data
+            when: "{{workflow.parameters.reducer}} != false"
+            arguments:
+              parameters:
+                - name: event
+                  value: "{{workflow.parameters.event}}"
+                - name: op
+                  value: "reducer"
+    #exit handler
+    - name: exit-handler
+      steps:
+        - - name: failure
+            template: res-data
+            when: "{{workflow.status}} != Succeeded"
+            arguments:
+              parameters:
+                - name: event
+                  value: "{{workflow.parameters.event}}"
+                - name: op
+                  value: "on_failure"
+        - - name: success
+            template: res-data
+            when: "{{workflow.status}} == Succeeded"
+            arguments:
+              parameters:
+                - name: event
+                  value: "{{workflow.parameters.event}}"
+                - name: op
+                  value: "on_success"
+
+    # container templates
+    - name: res-data
+      outputs:
+        parameters:
+          - name: out
+            default: "[{}]"
+            valueFrom:
+              path: /tmp/out
+
+      inputs:
+        parameters:
+          - name: event
+          - name: op
+            default: handler
+          - name: memory
+            default: "512Mi"
+      podSpecPatch: |
+        containers:
+        - name: main
+          resources:
+            limits:
+              memory: "{{inputs.parameters.memory}}"
+      container:
+        command:
+          [
+            python,
+            "/app/cli.py",
+            "run",
+            "-t",
+            "{{workflow.parameters.name}}",
+            "-v",
+            "{{inputs.parameters.event}}",
+            "-m",
+            "{{inputs.parameters.op}}",
+          ]
+        image: 286292902993.dkr.ecr.us-east-1.amazonaws.com/res-data:test-kafka
+        imagePullPolicy: Always
+        envFrom:
+          - configMapRef:
+              name: res-data-env
