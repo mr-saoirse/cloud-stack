@@ -125,7 +125,7 @@ spec:
             "-m",
             "{{inputs.parameters.op}}",
           ]
-        image: 286292902993.dkr.ecr.us-east-1.amazonaws.com/res-data:test-kafka
+        image: YOUR_IMAGE
         imagePullPolicy: Always
         envFrom:
           - configMapRef:
