@@ -20,7 +20,7 @@ from argo_workflows.model.io_argoproj_workflow_v1alpha1_workflow_create_request 
 )
 from loguru import logger
 import re
-import datetime
+from datetime import datetime
 
 LOCAL_WORKFLOW_PATH = os.environ.get("WORKFLOW_DIR", "/app/workflows")
 
