@@ -57,8 +57,8 @@ spec:
               parameters:
                 - name: event
                   value: "{{item}}"
-                - name: memory
-                  value: "{{item.memory}}"
+                # - name: memory
+                #   value: "{{item.memory}}"
 
         - - name: reduce
             #runs optionally

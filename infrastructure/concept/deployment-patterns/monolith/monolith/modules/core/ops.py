@@ -70,7 +70,8 @@ def _get_module_callables(name):
                 "options": {} if not hasattr(op,'meta') else op.meta,
             }
             if hasattr(op,'meta'):
-                d.update(op.meta)
+                #take non none values to override
+                d.update({k:v for k,v in op.meta.items() if v is not None})
             yield CallableModule(**d)
             
 def load_op(module, op='handler'):
