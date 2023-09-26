@@ -123,21 +123,31 @@ class PydanticKafkaClient:
         client.consume(handler=handler)
     
     
-def kafka_batch_consumer(obj=None, topic=None, ptype=None, limit=-1): 
+def kafka_batch_consumer(obj=None, topic=None, ptype=None, limit=2): 
     """
     A wrapper on generator function to turn it into a consumer
     """
  
     if obj is None:
         return functools.partial(kafka_batch_consumer, topic=topic, ptype=ptype,limit=limit)
-        
+    
+            
+    # we could try to infer the `ptype` from the wrapped method 
+    # we have an ops.infer_method_pydantic_type that does something like that
+    # but im not sure i want to import it here / if its general enough
+    if not ptype:
+        from monolith.modules.core.ops import infer_method_pydantic_type
+        ptype = infer_method_pydantic_type(obj)
+        logger.warning(f"Inferring the type as it was not supplied {ptype=}")
+            
     @wrapt.decorator
     def wrapper(wrapped, instance, args, kwargs):
+
         
-        #note for testing if you want to you can *could* check if the message is in kwargs here
-        #then you can just call the wrapped message with the payload and skip kafka
-        #this is useful if you want to test the workflow without kafka
-        #its also a legit way to use generators
+        # note for testing if you want to you can *could* check if the message is in kwargs here
+        # then you can just call the wrapped message with the payload and skip kafka
+        # this is useful if you want to test the workflow without kafka
+        # its also a legit way to use generators
         
         client = PydanticKafkaClient(ptype, topic=topic)
         messages = list(client.fetch(limit=limit))
