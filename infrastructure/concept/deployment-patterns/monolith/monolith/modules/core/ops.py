@@ -4,7 +4,7 @@ import pkgutil
 import importlib
 import functools
 from pydantic import BaseModel
-from pydantic.main import ModelMetaclass
+
 from loguru import logger
 from typing import Optional, Union, Any
 from collections.abc import Iterator
@@ -127,12 +127,18 @@ def infer_method_pydantic_type(method):
     this method is not very smart. 
     it makes some basic assumptions and looks for certain types in the method
     """
+    
+    try:
+        from pydantic._internal._model_construction import ModelMetaclass
+    except:
+        from pydantic.main import ModelMetaclass
+    
     def _pull_types(T, out=[]):
         for a in getattr(T, '__args__', []):
             if hasattr(a, '__args__'):
                 _pull_types(a, out)
             if isinstance(a,ModelMetaclass):
-                out.append(a)            
+                 out.append(a)            
     out = []
     for _,v in method.__annotations__.items():
         _pull_types(v, out=out)
