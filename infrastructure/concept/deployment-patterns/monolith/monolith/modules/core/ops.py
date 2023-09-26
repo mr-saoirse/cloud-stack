@@ -1,13 +1,14 @@
+import sys
 import wrapt
+import pkgutil
+import importlib
 import functools
 from pydantic import BaseModel
+from pydantic.main import ModelMetaclass
+from loguru import logger
 from typing import Optional, Union, Any
 from collections.abc import Iterator
 from inspect import getmembers, isfunction
-import pkgutil
-import sys
-import importlib
-from loguru import logger
 from monolith import modules as MODULE
 
 class CallableModule(BaseModel):
@@ -80,7 +81,7 @@ def load_op(module, op='handler', default = None):
     
     def default_handler(event, **kwargs):
         """
-        this is the default when the handler does not provide a handler
+        this is the default when the module does not provide a handler
         """
         logger.info(f"<<<< Proxy handling for {module}.{op} >>>>")
         logger.info(f"processing {event}, {kwargs}")
@@ -120,3 +121,20 @@ def inspect_modules(filter=None)-> Iterator[CallableModule]:
                 
     for spec in spec_list:
         del sys.modules[spec.name]
+ 
+def infer_method_pydantic_type(method):
+    """
+    this method is not very smart. 
+    it makes some basic assumptions and looks for certain types in the method
+    """
+    def _pull_types(T, out=[]):
+        for a in getattr(T, '__args__', []):
+            if hasattr(a, '__args__'):
+                _pull_types(a, out)
+            if isinstance(a,ModelMetaclass):
+                out.append(a)            
+    out = []
+    for _,v in method.__annotations__.items():
+        _pull_types(v, out=out)
+        
+    return out[0] if len(out) else None

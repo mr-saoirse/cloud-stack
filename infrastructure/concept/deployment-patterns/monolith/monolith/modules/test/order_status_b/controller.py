@@ -13,7 +13,7 @@ def handler(message: Union[OrderStatus,dict,str], context=None) -> dict:
    
 
 @deployment_attributes(interval_minutes='*/5', memory='1Gi') 
-@kafka_batch_consumer(limit=2, ptype=OrderStatus, topic='test.order_status')
+@kafka_batch_consumer(topic='test.order_status', limit=2)
 def generator(messages: Optional[List[OrderStatus]], context=None ) -> List[dict]:
     logger.info(f"Generating...")
     if messages:
