@@ -9,6 +9,7 @@ import sys
 import importlib
 from loguru import logger
 from monolith import modules as MODULE
+
 class CallableModule(BaseModel):
     name: str
     namespace: Optional[str]
@@ -40,7 +41,6 @@ def deployment(obj=None):
     # to allow with or without args we trap the case where there is no obj
     if obj is None:
         return functools.partial(deployment)
-
     @wrapt.decorator
     def wrapper(wrapped, instance, args, kwargs):
         try:
@@ -50,14 +50,9 @@ def deployment(obj=None):
             pass
         finally:
             pass
-
     return wrapper(obj)
 
-
- 
-
 def _get_module_callables(name):
-    
     MODULE_ROOT = 'monolith.modules.'
     fname = name.replace(MODULE_ROOT,'')
     namespace = f".".join(fname.split('.')[:2])        
@@ -74,7 +69,7 @@ def _get_module_callables(name):
                 d.update({k:v for k,v in op.meta.items() if v is not None})
             yield CallableModule(**d)
             
-def load_op(module, op='handler'):
+def load_op(module, op='handler', default = None):
     """
     much of this library depends on simple conventions so can be improved
     in this case we MUST be able to find the modules 
@@ -82,11 +77,27 @@ def load_op(module, op='handler'):
     these ops currently live in the controller so a test is that they are exposed to the module surface
     or we do more interesting inspection of modules 
     """
+    
+    def default_handler(event, **kwargs):
+        """
+        this is the default when the handler does not provide a handler
+        """
+        logger.info(f"<<<< Proxy handling for {module}.{op} >>>>")
+        logger.info(f"processing {event}, {kwargs}")
+        return {}
+        
+    
     MODULE_ROOT = 'monolith.modules.'
     module = module.replace(MODULE_ROOT,'')
     module = f"{MODULE_ROOT}{module}"
-    logger.debug(f"Loading function {op} from {module}")
-    return getattr(__import__(module, fromlist=[op]), op)
+    try:
+        logger.debug(f"Loading function {op} from {module}")
+        return getattr(__import__(module, fromlist=[op]), op)
+    except Exception as ex:
+        logger.warning(f"Failed loading function {op} from {module} - {repr(ex)}")
+        if default:
+            return default
+        return default_handler
                 
 def inspect_modules(filter=None)-> Iterator[CallableModule]:
     """
