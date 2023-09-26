@@ -13,7 +13,7 @@ def _argo_submit(name:str, event: Optional[EVENT_TYPE]=None, parallel=True, cont
     wrapper to submit the workflow. simple case assume parallel for generate-map-reduce
     in practice we would inspect the module to decide if that is the right thing to do
     for example, if the function is a handler, we could just set parallel=False
-    we could use other logic and attributes to decide..
+    we could use other logic and attributes to decide...
     """
     return ArgoClient().submit_map_flow(name, event=event, parallel=parallel, context=context)
 

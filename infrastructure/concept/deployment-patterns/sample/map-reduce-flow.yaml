@@ -81,7 +81,7 @@ spec:
                 - name: event
                   value: "{{workflow.parameters.event}}"
                 - name: op
-                  value: "on_failure"
+                  value: "on_success"
         - - name: success
             template: res-data
             when: "{{workflow.status}} == Succeeded"

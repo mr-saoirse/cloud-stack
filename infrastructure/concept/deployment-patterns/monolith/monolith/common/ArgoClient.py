@@ -1,11 +1,8 @@
 """
-placeholder for the argo client for the workflow dispatcher
-this is part of the infra fastAPI app (which also includes some workflows)
-
-example all is the kafka map-reduce consumer
-the fast api accepts jobs of generic type topic and json -> we post
-when consuming we load the types in the generic generator and then map and dispatch the handlers in the module
-
+The Argo Client: for submitting argo workflows
+We modify workflows when submitting them to bind our code base to the workflow
+- pass/modify/inspect params including the docker image
+- enable or disable workflow steps and params if needed
 """
 
 import json
