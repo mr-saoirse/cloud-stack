@@ -4,7 +4,7 @@ from loguru import logger
 from typing import Optional
 from monolith.common.KafkaClient import PydanticKafkaClient
 from monolith.modules.core.scheduler import start_scheduler
-from monolith.modules.core.ops import load_op
+from monolith.modules.core.ops import load_op, inspect_modules
 
 app = typer.Typer()
 
@@ -13,6 +13,9 @@ app.add_typer(kafka_app, name="kafka")
 
 scheduler_app = typer.Typer()
 app.add_typer(scheduler_app, name="scheduler")
+
+modules_app = typer.Typer()
+app.add_typer(modules_app, name="modules")
 
 @app.command("run")
 def run_method(
@@ -55,6 +58,12 @@ def consume_topic(
 def scheduler_start():
     logger.info(f"Starting scheduler")
     _ = start_scheduler()
+    
+@modules_app.command("inspect")
+def scheduler_start():
+    logger.info(f"Starting scheduler")
+    for m in inspect_modules():
+        logger.info(m.dict())
     
 if __name__ == "__main__":
     app()
